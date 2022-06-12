@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Projekt_Sii_WK.Entities;
+using Projekt_Sii_WK.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,8 @@ namespace Projekt_Sii_WK
             //rejestracja serwisu seedujacego
             services.AddScoped<SerwisSeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
+            services.AddScoped<ISerwisService, SerwisServices>();
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,7 +51,11 @@ namespace Projekt_Sii_WK
             }
 
             app.UseHttpsRedirection();
-            
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Serwis API");
+            });
 
             app.UseRouting();
 

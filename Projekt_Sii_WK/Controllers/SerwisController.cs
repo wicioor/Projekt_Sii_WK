@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Projekt_Sii_WK.Entities;
 using Projekt_Sii_WK.Models;
+using Projekt_Sii_WK.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,40 +14,30 @@ namespace Projekt_Sii_WK.Controllers
     [Route("api/serwis")]
     public class SerwisController : ControllerBase
     {
-        public SerwisController()
+        private readonly ISerwisService _serwisService;
+        public SerwisController(ISerwisService serwisService)
         {
-
+            _serwisService = serwisService;
         }
 
+        //[HttpGet("dto")]
+        //public ActionResult<IEnumerable<SerwisDto>> GetDto()
+        //{
+        //    var serwis = _dbContext
+        //        .Serwis
+        //        .Include(s => s.Klient)
+        //        .ToList();
 
-        private readonly SerwisDbContext _dbContext;
-        private readonly IMapper _mapper;
-        public SerwisController(SerwisDbContext dbContext, IMapper mapper)
-        {
-            _dbContext = dbContext;
-            _mapper = mapper;
-        }
+        //    var serwisdto = _mapper.Map<List<SerwisDto>>(serwis);
 
-        [HttpGet("dto")]
-        public ActionResult<IEnumerable<SerwisDto>> GetDto()
-        {
-            var serwis = _dbContext
-                .Serwis
-                .Include(s => s.Klient)
-                .ToList();
+        //    return Ok(serwisdto);
 
-            var serwisdto = _mapper.Map<List<SerwisDto>>(serwis);
-
-            return Ok(serwisdto);
-
-        }
+        //}
 
         [HttpGet("{id}")]
         public ActionResult<Serwis_samoch> Get([FromRoute] int id)
         {
-            var serwis = _dbContext
-                .Serwis
-                .FirstOrDefault(s => s.Id == id);
+            var serwis = _serwisService.GetId(id);
             if (serwis is null)
             {
                 return NotFound();
@@ -58,29 +49,49 @@ namespace Projekt_Sii_WK.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Serwis_samoch>> GetAll()
         {
-            var serwis = _dbContext
-                .Serwis
+            var serwisDto = _serwisService.GetAll();
 
-                .ToList();
-
-            return Ok(serwis);
+            return Ok(serwisDto);
 
         }
 
         [HttpPost]
         public ActionResult Utworzserwis([FromBody] UtworzserwisDto dto)
         {
-            var serwis = _mapper.Map<Serwis_samoch>(dto);
-            _dbContext.Serwis.Add(serwis);
-            _dbContext.SaveChanges();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-            return Created($"/api/serwis/{serwis.Id}", null);
+            var id = _serwisService.Create(dto);
+            return Created($"/api/serwis/{id}", null);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete([FromBody] UtworzserwisDto dto)
+        public ActionResult Delete([FromRoute] int id)
         {
-            var isDeleted = _
+            var isDeleted = _serwisService.Delete(id);
+
+            if (isDeleted)
+            {
+                return NoContent();
+            }
+            return NotFound();
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult Update([FromBody] UpdateSerwisDto dto, [FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var IsUpdated = _serwisService.Update(id, dto);
+            if (!IsUpdated)
+            {
+                return NotFound();
+            }
+            return Ok();
         }
     }
 }

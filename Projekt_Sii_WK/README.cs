@@ -5,11 +5,8 @@ using System.Threading.Tasks;
 
 namespace Projekt_Sii_WK
 {
+    //https://localhost:5001/swagger/index.html
     public class README
     {
-        //na potrzeby projektu zainstalowano w rozszerzeniu Menager NuGet
-        //EntityFramework
-        //Core.Tools
-        //Core.SQL
     }
 }

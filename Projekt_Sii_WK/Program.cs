@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NLog.Web;
 
 namespace Projekt_Sii_WK
 {
@@ -21,6 +22,7 @@ namespace Projekt_Sii_WK
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+            .UseNLog();
     }
 }
